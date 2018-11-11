@@ -7,10 +7,7 @@ import org.apache.log4j.Logger;
 @Entity
 @Table(name = "aenaflight_test") // aenaflight_2017_01 // aenaflight_test
 @NamedQueries({
-    @NamedQuery(name = "flights.all"    , query = "from RAWFlight"),
-    @NamedQuery(name = "flights.byId"   , query = "SELECT sfr FROM RAWFlight sfr WHERE flight_number = :value order by created_at"),
-    @NamedQuery(name = "flights.total"  , query = "select count(flight_number) from RAWFlight"),
-    @NamedQuery(name = "flights.unique" , query = "select distinct flight_number from RAWFlight"),
+	@NamedQuery(name = "raw_flights_byId"  , query = "SELECT sfr FROM RAWFlight sfr WHERE flight_icao_code = :code AND flight_number = :num order by created_at"),
 })
 public class RAWFlight {
 	

@@ -14,9 +14,6 @@ public class Hibernate {
         try {
             // Create the SessionFactory from hibernate.cfg.xm
             return new Configuration()
-//            						  .addPackage("pg.test.model")
-//            						  .addClass(Example.class)
-//            						  .addClass(SourceFlightRecord.class)
             		                  .configure()
             		                  .buildSessionFactory();
         }
