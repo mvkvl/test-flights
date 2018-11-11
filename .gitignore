@@ -1,0 +1,10 @@
+.classpath
+.project
+.settings/
+hibernate.cfg.xml
+log4j.properties
+target/
+test-app
+packer.sh
+runner.sh
+
