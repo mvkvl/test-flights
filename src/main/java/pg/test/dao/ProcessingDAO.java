@@ -8,7 +8,9 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.transform.Transformers;
 
+import pg.test.model.FlightId;
 import pg.test.model.ProcessingRecord;
 
 /**
@@ -28,8 +30,8 @@ public class ProcessingDAO {
 	static Logger log = Logger.getLogger(ProcessingDAO.class.getName());
 	
 	// for bulk operation support 
-	// (further will need to save large list in one transaction) 
-	private static final int BATCH_SIZE = 200; // same as hibernate.jdbc.batch_size
+	// (will need to save large list in one transaction) 
+	private static final int BATCH_SIZE = 200; // same as hibernate.jdbc.batch_size set in cfg.xml
 	
 	private SessionFactory sessionFactory;
 	
@@ -43,12 +45,16 @@ public class ProcessingDAO {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<String> flights() {
+	public List<FlightId> flights() {
 		Session session = sessionFactory.openSession();
 		try {
-			List<String> list = session.getNamedQuery("flights")
-									   .list();
-			return list;
+			String sql = "select flightcode   as \"flightCode\","
+					         + " flightnumber as \"flightNumber\""
+					         + " from processing";
+			@SuppressWarnings("deprecation")
+			List<FlightId> flights = session.createSQLQuery(sql).setResultTransformer(
+			    Transformers.aliasToBean(FlightId.class)).list(); 
+			return flights;
 		} catch (HibernateException ex) {
 			ex.printStackTrace();
 			return Collections.emptyList();
@@ -63,7 +69,7 @@ public class ProcessingDAO {
 	 * @param flightId
 	 * @return
 	 */
-	public ProcessingRecord get(String flightId) {
+	public ProcessingRecord get(FlightId flightId) {
 		Session session = sessionFactory.openSession();
 		try {
 			return (ProcessingRecord) session.get(ProcessingRecord.class, flightId);
@@ -81,11 +87,11 @@ public class ProcessingDAO {
 	 * @param flightId
 	 * @return
 	 */
-	public void save(List<String> flights) {
+	public void save(List<FlightId> flights) {
 		Session session = sessionFactory.openSession();
 	    Transaction tx  = session.beginTransaction();
 	    int cnt = 0;
-	    for (String flight : flights) {
+	    for (FlightId flight : flights) {
 	    	try {
 	    		session.saveOrUpdate(new ProcessingRecord(flight));
 	    	} catch (Exception ex) {
@@ -109,7 +115,7 @@ public class ProcessingDAO {
 	 * @param session
 	 * @return
 	 */
-	public void delete(String flightId, Session session) {
+	public void delete(FlightId flightId, Session session) {
 		log.trace("delete(" + flightId + ").enter");
 		ProcessingRecord pr = (ProcessingRecord) session.get(ProcessingRecord.class, flightId);
 		log.debug("ProcessingRecord to delete: " + pr);
@@ -122,11 +128,11 @@ public class ProcessingDAO {
 	 * 
 	 * @param flightId
 	 */
-	public void delete(String flightId) {
+	public void delete(FlightId flightId) {
 		Session session = sessionFactory.openSession();
 	    Transaction tx = session.beginTransaction();
 	    try {
-	    	delete(flightId);
+	    	delete(flightId, session);
 	    	tx.commit();
 	    } catch (HibernateException e) {
 	    	tx.rollback();
