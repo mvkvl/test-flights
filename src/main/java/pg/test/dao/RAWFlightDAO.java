@@ -30,7 +30,7 @@ public class RAWFlightDAO {
 	 *  entity and related queries. For now using preconfigured variable 
 	 *  here and @Table(name = "") in RAWFlight class 
 	 */
-	private final static String SOURCE_DATA_TABLE = "aenaflight_test"; // aenaflight_2017_01 // aenaflight_test
+	private final static String SOURCE_DATA_TABLE = "aenaflight_2017_01"; // aenaflight_2017_01 // aenaflight_test
 	
 	static Logger log = Logger.getLogger(RAWFlightDAO.class.getName());
 	
@@ -89,12 +89,26 @@ public class RAWFlightDAO {
 		}
 	}
 	
+	public long getRecordsCount() {
+		Session session = sessionFactory.openSession();
+		try {
+			return (long) session.getNamedQuery("raw_flights_count").getSingleResult();
+		} catch (HibernateException ex) {
+			ex.printStackTrace();
+			return -1;
+		} finally {
+			session.close();
+		}
+	}
+	
 	public static void main(String[] args) {
 		RAWFlightDAO fm = new RAWFlightDAO(Hibernate.instance().getSessionFactory());
 
-		fm.getUniqueFlights().parallelStream().forEach(System.out::println);
-		System.out.println("------------------------------------------");
-		fm.getFlightsById(new FlightId("IBE", "3236")).stream().forEach(System.out::println);
+		System.out.println(fm.getRecordsCount());
+		
+//		fm.getUniqueFlights().parallelStream().forEach(System.out::println);
+//		System.out.println("------------------------------------------");
+//		fm.getFlightsById(new FlightId("IBE", "3236")).stream().forEach(System.out::println);
 
 		Hibernate.instance().shutdown();
 	}
