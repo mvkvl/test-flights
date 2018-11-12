@@ -14,7 +14,7 @@ import pg.test.tools.FieldTools;
 @Entity
 @Table(name = "source_data")
 @NamedQueries({
-    @NamedQuery(name = "source_flight_byId", query = "SELECT sfr FROM SourceFlight sfr WHERE flight_icao_code = :code AND flight_number = :num order by created_at"),
+    @NamedQuery(name = "source_flight_byId", query = "SELECT sfr FROM SourceFlight sfr WHERE flight_icao_code = :code AND flight_number = :num"),
 })
 public class SourceFlight {
 	
@@ -116,7 +116,9 @@ public class SourceFlight {
 	@Column(name = "created_at")
 	protected long created_at;
 	
-	public SourceFlight() {}
+	public SourceFlight() {
+		
+	}
 	
 	/**
 	 * update current record with new values from RAW data source
@@ -124,29 +126,29 @@ public class SourceFlight {
 	 * @param sourceFlight
 	 */
 	public void update(RAWFlight rawFlight) {
-		act_arr_date_time_lt     = FieldTools.notNullOrCurrent(rawFlight.act_arr_date_time_lt, act_arr_date_time_lt);
-		aircraft_name_scheduled  = FieldTools.notNullOrCurrent(rawFlight.aircraft_name_scheduled, aircraft_name_scheduled);
-		arr_apt_name_es          = FieldTools.notNullOrCurrent(rawFlight.arr_apt_name_es, arr_apt_name_es);
-		arr_apt_code_iata        = FieldTools.notNullOrCurrent(rawFlight.arr_apt_code_iata, arr_apt_code_iata);
-		carrier_airline_name_en  = FieldTools.notNullOrCurrent(rawFlight.carrier_airline_name_en, carrier_airline_name_en);
-		carrier_icao_code        = FieldTools.notNullOrCurrent(rawFlight.carrier_icao_code, carrier_icao_code);
-		carrier_number           = FieldTools.notNullOrCurrent(rawFlight.carrier_number, carrier_number);
-		dep_apt_name_es          = FieldTools.notNullOrCurrent(rawFlight.dep_apt_name_es, dep_apt_name_es);
-		dep_apt_code_iata        = FieldTools.notNullOrCurrent(rawFlight.dep_apt_code_iata, dep_apt_code_iata);
-		est_arr_date_time_lt     = FieldTools.notNullOrCurrent(rawFlight.est_arr_date_time_lt, est_arr_date_time_lt);
-		est_dep_date_time_lt     = FieldTools.notNullOrCurrent(rawFlight.est_dep_date_time_lt, est_dep_date_time_lt);
-		flight_airline_name_en   = FieldTools.notNullOrCurrent(rawFlight.flight_airline_name_en, flight_airline_name_en);
-		flight_airline_name      = FieldTools.notNullOrCurrent(rawFlight.flight_airline_name, flight_airline_name);
-		flight_icao_code         = FieldTools.notNullOrCurrent(rawFlight.flight_icao_code, flight_icao_code);
-		flight_number            = FieldTools.notNullOrCurrent(rawFlight.flight_number, flight_number);
-		flt_leg_seq_no           = FieldTools.notNullOrCurrent(rawFlight.flt_leg_seq_no, flt_leg_seq_no);
-		schd_arr_only_date_lt    = FieldTools.notNullOrCurrent(rawFlight.schd_arr_only_date_lt, schd_arr_only_date_lt);
-		schd_arr_only_time_lt    = FieldTools.notNullOrCurrent(rawFlight.schd_arr_only_time_lt, schd_arr_only_time_lt);
-		source_data              = FieldTools.notNullOrCurrent(rawFlight.source_data, source_data);
-		status_info              = FieldTools.notNullOrCurrent(rawFlight.status_info, status_info);
-		act_dep_date_time_lt     = FieldTools.notNullOrCurrent(rawFlight.act_dep_date_time_lt, act_dep_date_time_lt);
-		schd_dep_only_date_lt    = FieldTools.notNullOrCurrent(rawFlight.schd_dep_only_date_lt, schd_dep_only_date_lt);
-		schd_dep_only_time_lt    = FieldTools.notNullOrCurrent(rawFlight.schd_dep_only_time_lt, schd_dep_only_time_lt);
+		act_arr_date_time_lt     = FieldTools.notNullOrCurrent(rawFlight.act_arr_date_time_lt, act_arr_date_time_lt, rawFlight.created_at, created_at);
+		aircraft_name_scheduled  = FieldTools.notNullOrCurrent(rawFlight.aircraft_name_scheduled, aircraft_name_scheduled, rawFlight.created_at, created_at);
+		arr_apt_name_es          = FieldTools.notNullOrCurrent(rawFlight.arr_apt_name_es, arr_apt_name_es, rawFlight.created_at, created_at);
+		arr_apt_code_iata        = FieldTools.notNullOrCurrent(rawFlight.arr_apt_code_iata, arr_apt_code_iata, rawFlight.created_at, created_at);
+		carrier_airline_name_en  = FieldTools.notNullOrCurrent(rawFlight.carrier_airline_name_en, carrier_airline_name_en, rawFlight.created_at, created_at);
+		carrier_icao_code        = FieldTools.notNullOrCurrent(rawFlight.carrier_icao_code, carrier_icao_code, rawFlight.created_at, created_at);
+		carrier_number           = FieldTools.notNullOrCurrent(rawFlight.carrier_number, carrier_number, rawFlight.created_at, created_at);
+		dep_apt_name_es          = FieldTools.notNullOrCurrent(rawFlight.dep_apt_name_es, dep_apt_name_es, rawFlight.created_at, created_at);
+		dep_apt_code_iata        = FieldTools.notNullOrCurrent(rawFlight.dep_apt_code_iata, dep_apt_code_iata, rawFlight.created_at, created_at);
+		est_arr_date_time_lt     = FieldTools.notNullOrCurrent(rawFlight.est_arr_date_time_lt, est_arr_date_time_lt, rawFlight.created_at, created_at);
+		est_dep_date_time_lt     = FieldTools.notNullOrCurrent(rawFlight.est_dep_date_time_lt, est_dep_date_time_lt, rawFlight.created_at, created_at);
+		flight_airline_name_en   = FieldTools.notNullOrCurrent(rawFlight.flight_airline_name_en, flight_airline_name_en, rawFlight.created_at, created_at);
+		flight_airline_name      = FieldTools.notNullOrCurrent(rawFlight.flight_airline_name, flight_airline_name, rawFlight.created_at, created_at);
+		flight_icao_code         = FieldTools.notNullOrCurrent(rawFlight.flight_icao_code, flight_icao_code, rawFlight.created_at, created_at);
+		flight_number            = FieldTools.notNullOrCurrent(rawFlight.flight_number, flight_number, rawFlight.created_at, created_at);
+		flt_leg_seq_no           = FieldTools.notNullOrCurrent(rawFlight.flt_leg_seq_no, flt_leg_seq_no, rawFlight.created_at, created_at);
+		schd_arr_only_date_lt    = FieldTools.notNullOrCurrent(rawFlight.schd_arr_only_date_lt, schd_arr_only_date_lt, rawFlight.created_at, created_at);
+		schd_arr_only_time_lt    = FieldTools.notNullOrCurrent(rawFlight.schd_arr_only_time_lt, schd_arr_only_time_lt, rawFlight.created_at, created_at);
+		source_data              = FieldTools.notNullOrCurrent(rawFlight.source_data, source_data, rawFlight.created_at, created_at);
+		status_info              = FieldTools.notNullOrCurrent(rawFlight.status_info, status_info, rawFlight.created_at, created_at);
+		act_dep_date_time_lt     = FieldTools.notNullOrCurrent(rawFlight.act_dep_date_time_lt, act_dep_date_time_lt, rawFlight.created_at, created_at);
+		schd_dep_only_date_lt    = FieldTools.notNullOrCurrent(rawFlight.schd_dep_only_date_lt, schd_dep_only_date_lt, rawFlight.created_at, created_at);
+		schd_dep_only_time_lt    = FieldTools.notNullOrCurrent(rawFlight.schd_dep_only_time_lt, schd_dep_only_time_lt, rawFlight.created_at, created_at);
 
 	    baggage_info             = FieldTools.addStackValue(rawFlight.baggage_info, baggage_info);
 	    counter                  = FieldTools.addStackValue(rawFlight.counter, counter);
@@ -154,6 +156,8 @@ public class SourceFlight {
 	    lounge_info              = FieldTools.addStackValue(rawFlight.lounge_info, lounge_info);
 	    terminal_info            = FieldTools.addStackValue(rawFlight.terminal_info, terminal_info);
 		arr_terminal_info        = FieldTools.addStackValue(rawFlight.arr_terminal_info, arr_terminal_info);
+
+		created_at  = (created_at > rawFlight.created_at) ? created_at : rawFlight.created_at;
 	}
 
 	public void updateCreatedAt() {

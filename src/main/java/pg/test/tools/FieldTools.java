@@ -69,6 +69,25 @@ public class FieldTools {
 	 *   	return Optional.of(newValue).orElse(currentValue);
 	 *   }
 	 */
+
+	/**
+	 * reworked filtering method (checks create_at date to figure out, which value to return)  
+	 * 
+	 * @param newValue
+	 * @param currentValue
+	 * @param new_created_at
+	 * @param cur_created_at
+	 * @return
+	 */
+	public static String notNullOrCurrent(String newValue, String currentValue, 
+			                          long new_created_at, long cur_created_at) {
+		if (cur_created_at > new_created_at) {
+			return (currentValue != null && !currentValue.isEmpty()) ? currentValue : newValue;
+		} else {
+			return (newValue != null && !newValue.isEmpty()) ? newValue : currentValue;
+		}
+	}
+
 	
 	/**
 	 * simple "LIFO" implementation: checks if string contains a value;
