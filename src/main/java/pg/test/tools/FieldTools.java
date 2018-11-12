@@ -69,7 +69,7 @@ public class FieldTools {
 	 *   	return Optional.of(newValue).orElse(currentValue);
 	 *   }
 	 */
-
+	
 	/**
 	 * simple "LIFO" implementation: checks if string contains a value;
 	 * if it does not contain it, returns old string prefixed with the new value

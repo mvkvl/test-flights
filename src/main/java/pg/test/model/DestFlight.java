@@ -31,16 +31,16 @@ public class DestFlight {
 	private long id;
 	
 	@Column(name = "adep", length = 8, nullable = false)
-	private String adep = ""; // 					<- [L] dep_apt_code_iata
+	private String adep = ""; // 				<- [L] dep_apt_code_iata
 
 	@Column(name = "ades", length = 8, nullable = false)
-	private String ades = ""; // 					<- [L] arr_apt_code_iata
+	private String ades = ""; // 				<- [L] arr_apt_code_iata
 
 	@Column(name = "flight_code", length = 8, nullable = false)
-    private String flight_code = ""; // 			<- [L] flight_icao_code
+    private String flight_code = ""; // 		<- [L] flight_icao_code
 
 	@Column(name = "flight_number", length = 8, nullable = false)
-    private String flight_number = ""; // 			<- [L] flight_number
+    private String flight_number = ""; // 		<- [L] flight_number
 
 	@Column(name = "carrier_code", length = 8, nullable = true)
 	private String carrier_code; // 			<- [L] carrier_icao_code 
@@ -49,15 +49,15 @@ public class DestFlight {
     private String carrier_number; // 			<- [L] carrier_number
 
 	@Column(name = "status_info", length = 256, nullable = false)
-    private String status_info = ""; // 			<- [L] status_info
+    private String status_info = ""; // 		<- [L] status_info
 
 	/** 
 	 *  By task it should be NOT NULL, but raw data table has
 	 *  flights for which this field is not set, which prevents 
 	 *  saving the final record into database (for quite many 
 	 *  records, according to performed tests). Here clarification 
-	 *  needed either we really do not want to save records with blank 
-	 *  scheduled dates, or we should change NOT NULL condition to 
+	 *  needed: either we really do not want to save records with blank 
+	 *  scheduled dates/times, or we should change NOT NULL condition to 
 	 *  NULLABLE. For now changing to NULLABLE.
 	 */
 	@Column(name = "schd_dep_lt", columnDefinition= "TIMESTAMP WITHOUT TIME ZONE", nullable = true) // should be false
@@ -69,8 +69,8 @@ public class DestFlight {
 	 *  flights for which this field is not set, which prevents 
 	 *  saving the final record into database (for quite many 
 	 *  records, according to performed tests). Here clarification 
-	 *  needed either we really do not want to save records with blank 
-	 *  scheduled dates, or we should change NOT NULL condition to 
+	 *  needed: either we really do not want to save records with blank 
+	 *  scheduled dates/times, or we should change NOT NULL condition to 
 	 *  NULLABLE. For now changing to NULLABLE.
 	 */
 	@Column(name = "schd_arr_lt", columnDefinition= "TIMESTAMP WITHOUT TIME ZONE", nullable = true)  // should be false
@@ -122,7 +122,7 @@ public class DestFlight {
 	
 	@Column(name = "created_at", columnDefinition= "TIMESTAMP WITHOUT TIME ZONE", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-    private Date created_at; // 				<- created_at
+    private Date created_at;
 
 	public DestFlight() {}
 	
@@ -131,7 +131,7 @@ public class DestFlight {
 	 * 
 	 * @param sourceFlight
 	 */
-	public void update(SourceFlight sourceFlight) {
+	public DestFlight update(SourceFlight sourceFlight) {
 		this.adep                    = FieldTools.notNullOrCurrent(sourceFlight.dep_apt_code_iata, adep);
 		this.ades                    = FieldTools.notNullOrCurrent(sourceFlight.arr_apt_code_iata, ades); 
 	    this.flight_code             = FieldTools.notNullOrCurrent(sourceFlight.flight_icao_code,  flight_code);
@@ -154,6 +154,7 @@ public class DestFlight {
 	    this.lounge_info             = FieldTools.notNullOrCurrent(sourceFlight.lounge_info,       lounge_info);
 	    this.terminal_info           = FieldTools.notNullOrCurrent(sourceFlight.terminal_info,     terminal_info);
 		this.arr_terminal_info       = FieldTools.notNullOrCurrent(sourceFlight.arr_terminal_info, arr_terminal_info);
+		return this;
 	}
 	
 	public void updateCreatedAt() {

@@ -37,6 +37,9 @@ import pg.test.dao.ProcessingDAO;
  *      - (минус реализации) из RAW-данных подружаются все записи для конкретного 
  *        flightId в List<>; возможно, есть смысл прикрутить курсор и подтягивать 
  *        данные постепенно
+ *      - (минус реализации) для обработки данных в правильном порядке они сортируются 
+ *        по времени создания (много времени уходит на сортировку при больших объёмах
+ *        исходных данных)
  *        
  *    мысли вслух:
  *      - при каждом запуске обрабатывает всю таблицу RAW-данных (если только не 
@@ -52,20 +55,20 @@ import pg.test.dao.ProcessingDAO;
  *        условие (пока объявил их как NULLABLE)
  *           
  *    результаты тестовых заездов:
- *     -----------------+----------------+---------------------    
- *		размер таблицы  |   количество   |     общее 
- *        с исходными   |   уникальных   |     время 
- *         данными      |     рейсов     |   обработки
- *     -----------------+----------------+---------------------    
- *		      1 000	    |       ? ???    |    00:00:??
- *		      2 000	    |                |    
- *		      5 000	    |                |    
- *	  	     10 000	    |                |    
- *		     25 000	    |                |    
- *		     50 000	    |                |    
- *		    100 000	    |                |    
- *		    250 000	    |                |    
- *     -----------------+----------------+---------------------    
+ *     +-----------------+----------------+---------------+    
+ *     | размер таблицы  |   количество   |     общее     |
+ *     |   с исходными   |   уникальных   |     время     |
+ *     |     данными     |     рейсов     |   обработки   |
+ *     +-----------------+----------------+---------------+    
+ *     |       1 000     |        953     |    00:00:21   |
+ *     |       2 000     |      1 747     |    00:00:32   |
+ *     |       5 000     |      3 616     |    00:01:14   |
+ *     |      10 000     |      5 433     |    00:02:09   |
+ *     |      25 000     |      5 813     |    00:03:16   |
+ *     |      50 000     |      5 908     |    00:04:13   |
+ *     |     100 000     |      5 770     |    00:05:58   |
+ *     |     250 000     |      7 354     |    00:34:36   |
+ *     +-----------------+----------------+---------------+    
  *
  * @author kami
  *
@@ -98,7 +101,7 @@ public class Application {
 	private void processFlight(FlightId flightId) {
 		log.trace("processFlight(" + flightId +").enter");
 
-		// get resulting record from filtered table or create new one
+		// get target record from filtered table or create new one
 		SourceFlight sf = sourceDAO.get(flightId);
 		log.trace("processFlight: sourceFlight (initial) = " + sf);
 		
@@ -112,10 +115,13 @@ public class Application {
 	    Transaction tx = null;
 	    try {
 	    	tx = session.beginTransaction();
+	    	// save filtered record
 	    	if (!sourceDAO.save(sf, session)) throw new HibernateException("could not save sourceFlight");
-	    	DestFlight df = destDAO.get(flightId);
-	    	df.update(sf);
+			// get target record from final result table or create new one
+	    	// and update it with values from filtered record
+	    	DestFlight df = destDAO.get(flightId).update(sf);
 	    	if (!destDAO.save(df, session)) throw new HibernateException("could not save destFlight");
+	    	// delete processing record
 	    	procDAO.delete(flightId, session);
 	    	tx.commit();
 			log.debug(String.format("flight [%15s] processed", flightId));
@@ -144,20 +150,20 @@ public class Application {
 		List<FlightId> flights = procDAO.flights();
 		log.debug("unprocessed flights from broken run: " + flights.size());
 
-		// if list is not empty we should continue 
-		// interrupted processing (so go on with current list) 
 		if (flights == null || flights.isEmpty()) {
+			// if list of processing flights is empty, we are 
+			// starting new processing and need to get unique 
+			// flight IDs for further processing from RAW data table
 			log.debug("start new processing session");
 			
-			// if it's empty we are starting new processing
-			// and need to get unique flight IDs for further
-			// processing from RAW data table
 			flights = rawDAO.getUniqueFlights();
 			log.debug("new unique flights: " + flights.size());
 			
-			// ... and save this list into processing table
+			// ... and save them into processing table
 			procDAO.save(flights);
 		} else {
+			// if list is not empty we should continue 
+			// interrupted processing (so go on with current list) 
 			log.debug("continue previous processing session");
 		}
 
@@ -183,8 +189,8 @@ public class Application {
 		// start parallel processing of each flight number from a list
 		if (numberOfThreads > 0) {
 			// if 'numberOfThreads' parameter is passed to the method, use given number of threads for processing
-			ForkJoinPool myPool = new ForkJoinPool(numberOfThreads);
-			myPool.submit(() ->
+			ForkJoinPool pool = new ForkJoinPool(numberOfThreads);
+			pool.submit(() ->
 				flights.parallelStream().forEach(f -> processFlight(f))
 			).get();
 		} else {

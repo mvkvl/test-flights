@@ -116,9 +116,7 @@ public class SourceFlight {
 	@Column(name = "created_at")
 	protected long created_at;
 	
-	public SourceFlight() {
-		
-	}
+	public SourceFlight() {}
 	
 	/**
 	 * update current record with new values from RAW data source
